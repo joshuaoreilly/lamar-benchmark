@@ -17,6 +17,7 @@ class Device(Enum):
     NAVVIS = 'NAVVIS'
     HOLOLENS = 'HOLOLENS'
     PHONE = 'PHONE'
+    SPOT = 'SPOT'
     UNDEFINED = 'UNDEFINED'
 
     @classmethod
@@ -26,6 +27,8 @@ class Device(Enum):
                 return Device.HOLOLENS
             if id_.startswith('ios'):
                 return Device.PHONE
+            if id_.startswith('spot'):
+                return Device.SPOT
         return Device.UNDEFINED
 
 

@@ -25,15 +25,20 @@ conf_align = {
         **run_sequence_aligner.conf_ios, matching=conf_matching.to_dict())),
     'hl': run_sequence_aligner.Conf.from_dict(dict(
         **run_sequence_aligner.conf_hololens, matching=conf_matching.to_dict())),
+    'spot': run_sequence_aligner.Conf.from_dict(dict(
+        **run_sequence_aligner.conf_spot, matching=conf_matching.to_dict())),
 }
 conf_align['ios'].matching.local_features['model']['max_keypoints'] = 2048
 conf_align['hl'].matching.local_features['model']['max_keypoints'] = 1024
+# TODO: choose max_keypoints
+conf_align['spot'].matching.local_features['model']['max_keypoints'] = 1024
 
 conf_refine = RefinementConf(
     conf_matching,
     keyframings={
         Session.Device.PHONE: conf_align['ios'].localizer.keyframing,
         Session.Device.HOLOLENS: conf_align['hl'].localizer.keyframing,
+        Session.Device.SPOT: conf_align['spot'].localizer.keyframing,
     },
 )
 
@@ -67,6 +72,10 @@ def process_sequence(capture, ref_id, input_path, conf, kind):
             shutil.copytree(input_path, capture.session_path(sequence_id))
             capture.sessions[sequence_id] = Session.load(capture.sessions_path() / sequence_id)
             chunk_ids = [sequence_id]
+        elif kind.startswith('spot'):
+            shutil.copytree(input_path, capture.session_path(sequence_id))
+            capture.sessions[sequence_id] = Session.load(capture.sessions_path() / sequence_id)
+            chunk_ids = [sequence_id]
         else:
             raise ValueError(kind)
 
@@ -97,8 +106,10 @@ def run(capture_path: Path,
         ref_id: str,
         phone_dir: Optional[Path] = None,
         hololens_dir: Optional[Path] = None,
+        spot_dir: Optional[Path] = None,
         phone_sequences: List[str] = ('*',),
         hololens_sequences: List[str] = ('*',),
+        spot_sequences: List[str] = ('*',),
         ):
 
     capture = Capture.load(capture_path, wireless=False)
@@ -120,6 +131,10 @@ def run(capture_path: Path,
             hololens_paths = [hololens_dir / g for g in hololens_sequences]
             for path in hololens_paths:
                 sequence_ids += process_sequence(capture, ref_id, path, conf_align['hl'], 'hl')
+        if spot_dir is not None:
+            spot_paths = [spot_dir / g for g in spot_sequences]
+            for path in spot_paths:
+                sequence_ids += process_sequence(capture, ref_id, path, conf_align['spot'], 'spot')
         assert len(sequence_ids) > 0
         logger.info('Found %d sequences', len(sequence_ids))
         with open(capture.path / 'sequences.txt', 'w') as fid:
@@ -134,15 +149,17 @@ def run(capture_path: Path,
     map_ids, query_ids = run_map_query_split.run(capture, sequence_ids, ref_id=ref_id)
     query_ids_phone = list(filter(lambda i: i.startswith('ios'), query_ids))
     query_ids_hololens = list(filter(lambda i: i.startswith('hl'), query_ids))
+    query_ids_spot = list(filter(lambda i: i.startswith('spot'), query_ids))
 
     map_id = 'map'
     query_id_phone = 'query_phone'
     query_id_hololens = 'query_hololens'
+    query_id_spot = 'query_spot'
     logger.info('Writing map and query sessions')
     run_combine_sequences.run(
         capture, map_ids, map_id, overwrite_poses=True,
         keyframing=map_keyframing, reference_id=ref_id)
-    for i, ids in [[query_id_phone, query_ids_phone], [query_id_hololens, query_ids_hololens]]:
+    for i, ids in [[query_id_phone, query_ids_phone], [query_id_hololens, query_ids_hololens], [query_id_spot, query_ids_spot]]:
         run_combine_sequences.run(
             capture, ids, i, overwrite_poses=False, keyframing=eval_keyframing)
 
@@ -153,32 +170,37 @@ def get_data_CAB():
     ref_id = '2022-06-21_09.28.22+2022-06-25_11.14.36'
     phone_sequences = read_sequence_list(sequence_list_dir / 'CAB_phone.txt')
     hololens_sequences = read_sequence_list(sequence_list_dir / 'CAB_hololens.txt')
-    return ref_id, phone_sequences, hololens_sequences
+    spot_sequences = read_sequence_list(sequence_list_dir / 'CAB_spot.txt')
+    return ref_id, phone_sequences, hololens_sequences, spot_sequences
 
 def get_data_HGE():
     ref_id = '2022-02-06_12.55.11+2022-02-26_16.21.10'
     phone_sequences = read_sequence_list(sequence_list_dir / 'HGE_phone.txt')
     hololens_sequences = read_sequence_list(sequence_list_dir / 'HGE_hololens.txt')
-    return ref_id, phone_sequences, hololens_sequences
+    spot_sequences = read_sequence_list(sequence_list_dir / 'HGE_spot.txt')
+    return ref_id, phone_sequences, hololens_sequences, spot_sequences
 
 def get_data_LIN():
     ref_id = '2022-07-03_08.30.21'
     phone_sequences = read_sequence_list(sequence_list_dir / 'LIN_phone.txt')
     hololens_sequences = read_sequence_list(sequence_list_dir / 'LIN_hololens.txt')
-    return ref_id, phone_sequences, hololens_sequences
+    spot_sequences = read_sequence_list(sequence_list_dir / 'HGE_spot.txt')
+    return ref_id, phone_sequences, hololens_sequences, spot_sequences
 
 
 def main(args):
     scene = args.scene
-    ref_id, phone_sequences, hololens_sequences = eval('get_data_'+scene)()
+    ref_id, phone_sequences, hololens_sequences, spot_sequences = eval('get_data_'+scene)()
     if args.skip_phone:
         phone_sequences = []
     if args.skip_hololens:
         hololens_sequences = []
-    logger.info('Found %d phone and %d HoloLens sequences in lists.',
-                len(phone_sequences), len(hololens_sequences))
-    run(args.capture_root/scene, ref_id, args.phone_dir/scene, args.hololens_dir/scene,
-        phone_sequences, hololens_sequences)
+    if args.skip_spot:
+        spot_sequences = []
+    logger.info('Found %d phone, %d HoloLens, and %d Spot sequences in lists.',
+                len(phone_sequences), len(hololens_sequences), len(spot_sequences))
+    run(args.capture_root/scene, ref_id, args.phone_dir/scene, args.hololens_dir/scene, args.spot_dir/scene,
+        phone_sequences, hololens_sequences, spot_sequences)
 
 
 if __name__ == '__main__':
@@ -188,6 +210,9 @@ if __name__ == '__main__':
     parser.add_argument('--phone_dir', type=Path, default=Path('/media/HD8TB/ios_rec/'))
     parser.add_argument('--hololens_dir', type=Path,
                         default=Path('/media/SSD2/hololens_proc/all-fix'))
+    parser.add_argument('--spot_dir', type=Path,
+                        default=Path('/media/HD/spot_dir/'))
     parser.add_argument('--skip_phone', action='store_true')
     parser.add_argument('--skip_hololens', action='store_true')
+    parser.add_argument('--skip_spot', action='store_true')
     main(parser.parse_args())
