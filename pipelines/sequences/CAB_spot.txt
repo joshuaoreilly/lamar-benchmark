@@ -2,7 +2,8 @@
 2023-04-03-10-48    # CNB
 2023-04-03-13-48    # CVG portion of CAB, no loop closure
 2023-06-13-22-21    # D-Lab, ZED
-#2023-06-19-22-32   # D-lab, Spot recording at 4fps
+#2023-06-14-07-41   # Just sitting on floor doing nothing
+2023-06-19-22-32    # D-lab, Spot recording at 4fps
 2023-07-25-10-53
 2023-07-25-11-06
 2023-07-25-11-18
