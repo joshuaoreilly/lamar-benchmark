@@ -1,4 +1,20 @@
+# Haven't verified for loop closure necessary to correct spot odometry
+# Pre-ZED
 2023-06-06-06-26
-#2023-06-06-06-42  # Just sitting in one spot
+#2023-06-06-06-42   # 10 seconds long, sitting in one spot
 2023-06-06-06-44
-#2023-06-06-07-17  # Made the mistake of rolling it over for someone
+2023-06-06-06-57
+2023-06-06-07-04
+#2023-06-06-07-17   # 1 minute long, made the mistake of rolling it over for someone
+2023-06-06-07-19
+2023-06-06-07-25
+2023-06-06-07-33
+2023-06-06-07-49
+2023-06-06-07-54
+2023-06-06-08-01
+2023-06-06-08-11
+# Post-ZED
+2023-07-26-10-37
+2023-07-26-10-47
+2023-07-26-10-54
+2023-07-26-11-10
