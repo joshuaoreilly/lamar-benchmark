@@ -1,7 +1,7 @@
 2023-04-01-09-40
 2023-04-03-10-48
 2023-04-03-13-48
-2023-06-13-22-21
+2023-06-13-22-21    # D-Lab, ZED installed
 #2023-06-14-07-41   # Just sitting on floor doing nothing
 2023-06-19-22-32    # Spot recording at 4fps
 #2023-07-25-10-53   # Orin and NUC desynced

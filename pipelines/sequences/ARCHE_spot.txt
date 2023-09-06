@@ -1,0 +1,16 @@
+2023-07-12-16-24    # B5, is fine
+2023-07-12-16-54    # B3, no zed/kinect footage after 45s
+2023-07-12-19-42    # La Grande Place, is fine
+2023-07-13-11-17    # B5, gap with no zed/kinect footage at 1min45s
+#2023-07-13-17-08    # Calibration recording, but ZED and Kinect not recorded
+2023-07-13-17-14    # B3, gap with no zed/kinect footage at 3min
+2023-07-13-17-28    # B3, gaps with no zed/kinect footage at 2min45s
+2023-07-13-19-21    # D2, gaps with no zed/kinect footage at 2min15s
+2023-07-13-19-34    # La Grande Place, zed/kinect gap at 4min30s, Spot gap at 6min30s
+2023-07-13-19-56    # B5 Spot at 3fps, zed/kinect gap at 4min30s, 6min
+2023-07-13-20-15    # B5, zed/kinect gap at 45s, spot gap at 5min45s
+2023-07-14-09-12    # STPA, all have huge gaps at 2min, 4min, sporadic small gaps, the slip in the shower was at the very end (after most of the gaps)
+2023-07-14-09-22    # STPA, fine, but only like 20 seconds
+2023-07-14-09-24    # STPA, zed/kinect gap at 15s
+2023-07-14-09-27    # STPA, zed/kinect gap at 20s, zed/kinect/spot gap at 5min15s
+# occasional green tinted footage, result of NVIDIA driver?
